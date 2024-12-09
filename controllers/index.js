@@ -22,39 +22,56 @@ function encodeImage(image) {
 // GET: /documents and GET: /documents?query=search_text
 const getImageController = async (req, res) => {
 
-    // Determine whether the requested API is GET: /documents OR GET: /documents?query=search_text
-    let isQuery = false
-    req.query.search_text === undefined ? isQuery = false : isQuery = true
-    console.log(`${isQuery}`) // for debugging
+  // Determine whether the requested API is GET: /documents OR GET: /documents?query=search_text
+  let isCorrectQuery = false
+  req.query.search_text === undefined ? isCorrectQuery = false : isCorrectQuery = true
+  console.log(`isQuery: ${isCorrectQuery}`) // for debugging
+
+  if (!isCorrectQuery) {
     try {
-        const listed = await knex('image').select('*').orderBy('id')
-        console.log('listed Images: ') // for debugging
-        console.log(listed) // for debugging
-        if (listed.length !== 0 ) {
-            // Send the json of knex query of all image info to client if there is any image
-            res.status(200).json(listed)
-        } else {
-            // Send 404 error message to client if there is no any image information stored in the database
-            res.status(404).json({error : "there is no any image information stored in the database"})
-        }
+      // Case 1 for GET: /documents
+      const listed = await knex('image').select('*').orderBy('id')
+      if (listed.length !== 0 ) {
+          // Send the json of knex query of all image info to client if there is any image
+          console.log('listed Images: ') // for debugging
+          console.log(listed) // for debugging
+          res.status(200).json(listed)
+      } else {
+          // Send 404 error message to client if there is no any image information stored in the database
+          res.status(404).json({error : "there is no any image information stored in the database"})
+      }
     } catch (error) {
         res.status(500).json({error: "Errors occurs when getting all of the images (list images)"})
     }
+  } else {
+    try {
+      // Case 2 for GET: /documents?query=search_text
+      const requestedId = Number(req.query.search_text)
+      console.log(requestedId) // for debugging
+
+      if(!isNaN(requestedId)){
+        const got = await knex('image').select('*').where({id: requestedId})
+        if (got.length !== 0 ) {
+          // Send the json of knex query of all image info to client if there is any image
+          console.log(`Get Image by query= : ${requestedId}`) // for debugging
+          console.log(got) // for debugging
+          res.status(200).json(got)
+        } else {
+          // Send 404 error message to client if there is no any image of the requested Id
+          res.status(404).json({error : "there is no any image of the requested Id"})
+        }
+      } else {
+        // send 406 error message to the client if the input query is not a number
+        res.status(406).json({error: "Error occurs as the search_text input should be a number"})
+      }
+      
+    } catch (error) {
+      res.status(500).json({error: "Errors occurs when getting image by query"})
+    }
+  }
 }
 
-// GET: /documents?query=search_text
-// const getImageController = async (req, res) => {
-//     const requetedId = req.query.search_text
-//     console.log(requetedId)
-//     try {
-//         const got = await knex('image').select('*').where({id: requestedId})
-//         console.log('Get Image by query= : ') // for debugging
-//         console.log(got) // for debugging
-//     } catch (error) {
-//         res.status(500).json({error: "Errors occurs when getting image by query"})
-//     }
-// }
-
+// POST: /documents
 const createImageController = async (req, res) => {
   try {
     // import the apiKey from secret handing file .env
