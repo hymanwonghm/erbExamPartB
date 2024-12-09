@@ -75,10 +75,10 @@ const getImageController = async (req, res) => {
 const createImageController = async (req, res) => {
   try {
     // import the apiKey from secret handing file .env
-    const apiKey = process.env.API_KEY;
+    const apiKey = process.env.API_KEY
     // Processing image File
-    const imageFileName = req.file.originalname;
-    const base64ImageStr = encodeImage(imageFileName);
+    const imageFileName = req.file.originalname
+    const base64ImageStr = encodeImage(imageFileName)
 
     // Calling Goggle Vision API for text detection
     request_body = {
