@@ -1,4 +1,4 @@
-/* For testing and debuging, please check th postman collection API document involved in the project floder */
+/* For testing and debuging, please check th postman collection API document (OCR API documents (Wong Hyman_8)) involved in the project floder */
 
 // Importing modules
 const fs = require("fs")
@@ -24,7 +24,7 @@ const getImageController = async (req, res) => {
 
   // Determine whether the requested API is GET: /documents OR GET: /documents?query=search_text
   let isCorrectQuery = false
-  req.query.search_text === undefined ? isCorrectQuery = false : isCorrectQuery = true
+  req.query.query === undefined ? isCorrectQuery = false : isCorrectQuery = true
   console.log(`isQuery: ${isCorrectQuery}`) // for debugging
 
   if (!isCorrectQuery) {
@@ -46,7 +46,7 @@ const getImageController = async (req, res) => {
   } else {
     try {
       // Case 2 for GET: /documents?query=search_text
-      const requestedId = Number(req.query.search_text)
+      const requestedId = Number(req.query.query)
       console.log(requestedId) // for debugging
 
       if(!isNaN(requestedId)){
